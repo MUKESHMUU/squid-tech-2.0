@@ -85,16 +85,20 @@ class FirebaseDB {
      * 4️⃣ START GAME (Admin)
      */
     async startGame() {
-        try {
-            await this.db.ref('game/started').set(true);
-            await this.db.ref('game/startedAt').set(firebase.database.ServerValue.TIMESTAMP);
-            console.log('✅ Game started in Firebase');
-            return { success: true };
-        } catch (error) {
-            console.error('❌ Error starting game:', error);
-            return { success: false };
-        }
+    try {
+        // ✅ Clear leaderboard from previous session
+        await this.db.ref('leaderboard').remove();
+        await this.db.ref('players').remove();
+
+        await this.db.ref('game/started').set(true);
+        await this.db.ref('game/startedAt').set(firebase.database.ServerValue.TIMESTAMP);
+        console.log('✅ Game started in Firebase');
+        return { success: true };
+    } catch (error) {
+        console.error('❌ Error starting game:', error);
+        return { success: false };
     }
+}
 
     /**
      * 5️⃣ LISTEN TO GAME START
@@ -198,14 +202,38 @@ class FirebaseDB {
      * LISTEN TO LEADERBOARD (Real-time)
      */
     onLeaderboardUpdate(callback) {
-        const leaderboardRef = this.db.ref('leaderboard');
-        leaderboardRef.on('value', async (snapshot) => {
-            const leaderboard = await this.getLeaderboard();
-            callback(leaderboard);
-        });
+    const leaderboardRef = this.db.ref('leaderboard');
+    leaderboardRef.on('value', (snapshot) => {
+        if (!snapshot.exists()) {
+            callback([]);
+            return;
+        }
 
-        this.listeners.leaderboard = leaderboardRef;
-    }
+        const data = snapshot.val();
+        const leaderboard = Object.keys(data).map(teamName => ({
+            teamName,
+            score: data[teamName].score || 0,
+            time: data[teamName].time || 0,
+            updatedAt: data[teamName].updatedAt || 0
+        }));
+
+        // ✅ Only show players updated AFTER game started
+        this.db.ref('game/startedAt').once('value').then(gameSnap => {
+            const gameStartedAt = gameSnap.val() || 0;
+
+            const filtered = leaderboard.filter(p => p.updatedAt >= gameStartedAt);
+
+            filtered.sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                return a.time - b.time;
+            });
+
+            callback(filtered.slice(0, 15));
+        });
+    });
+
+    this.listeners.leaderboard = leaderboardRef;
+}
 
     /**
      * 9️⃣ GET PLAYER PROGRESS (For refresh recovery)
