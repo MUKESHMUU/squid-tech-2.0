@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQUID TECH: Live Leaderboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        :root {
+            --neon-green: #00ff41;
+            --dark-bg: #0a0e27;
+            --card-bg: rgba(20, 25, 50, 0.8);
+            --border-color: rgba(102, 126, 234, 0.3);
+            --text-light: #e0e6ff;
+            --text-muted: #a0afd9;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #0f1535 100%);
+            color: var(--text-light);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+        }
+
+        .leaderboard-container {
+            width: 95%;
+            max-width: 1600px;
+            height: 95vh;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        /* Header */
+        .leaderboard-header {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 0 40px rgba(0, 255, 65, 0.1);
+            animation: glow-pulse 3s infinite;
+        }
+
+        @keyframes glow-pulse {
+            0%, 100% {
+                box-shadow: 0 0 40px rgba(0, 255, 65, 0.1), 0 0 80px rgba(0, 255, 65, 0.05);
+            }
+            50% {
+                box-shadow: 0 0 60px rgba(0, 255, 65, 0.2), 0 0 120px rgba(0, 255, 65, 0.1);
+            }
+        }
+
+        .leaderboard-header h1 {
+            font-size: 4em;
+            font-weight: 900;
+            color: var(--neon-green);
+            text-shadow: 0 0 30px rgba(0, 255, 65, 0.6), 0 0 60px rgba(0, 255, 65, 0.3);
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+        }
+
+        .leaderboard-header p {
+            font-size: 1.8em;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+        }
+
+        /* Main Leaderboard */
+        .leaderboard-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 0;
+        }
+
+        .leaderboard-table-wrapper {
+            flex: 1;
+            overflow: hidden;
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            background: var(--card-bg);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .table-header {
+            display: grid;
+            grid-template-columns: 1fr 3fr 2fr 2fr;
+            gap: 20px;
+            padding: 30px 40px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.2) 100%);
+            border-bottom: 3px solid var(--neon-green);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .table-header-cell {
+            font-size: 1.8em;
+            font-weight: 900;
+            color: var(--neon-green);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+        }
+
+        .leaderboard-body {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .leaderboard-body::-webkit-scrollbar {
+            width: 0;
+        }
+
+        .leaderboard-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .leaderboard-body::-webkit-scrollbar-thumb {
+            background: transparent;
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 1fr 3fr 2fr 2fr;
+            gap: 20px;
+            padding: 25px 40px;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.15);
+            align-items: center;
+            transition: all 0.3s ease;
+            font-size: 1.6em;
+            animation: slideIn 0.5s ease-out forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .table-row:hover {
+            background: rgba(102, 126, 234, 0.2);
+            border-left: 5px solid var(--neon-green);
+            padding-left: 35px;
+        }
+
+        .table-row.top-1 {
+            background: linear-gradient(90deg, rgba(255, 215, 0, 0.2) 0%, transparent 100%);
+            border-left: 5px solid #ffd700;
+            padding-left: 35px;
+        }
+
+        .table-row.top-1:hover {
+            background: linear-gradient(90deg, rgba(255, 215, 0, 0.3) 0%, transparent 100%);
+            border-left: 5px solid #ffd700;
+        }
+
+        .table-row.top-2 {
+            background: linear-gradient(90deg, rgba(192, 192, 192, 0.15) 0%, transparent 100%);
+            border-left: 5px solid #c0c0c0;
+            padding-left: 35px;
+        }
+
+        .table-row.top-2:hover {
+            background: linear-gradient(90deg, rgba(192, 192, 192, 0.25) 0%, transparent 100%);
+            border-left: 5px solid #c0c0c0;
+        }
+
+        .table-row.top-3 {
+            background: linear-gradient(90deg, rgba(205, 127, 50, 0.15) 0%, transparent 100%);
+            border-left: 5px solid #cd7f32;
+            padding-left: 35px;
+        }
+
+        .table-row.top-3:hover {
+            background: linear-gradient(90deg, rgba(205, 127, 50, 0.25) 0%, transparent 100%);
+            border-left: 5px solid #cd7f32;
+        }
+
+        .rank-cell {
+            font-weight: 900;
+            font-size: 2em;
+            color: var(--neon-green);
+            text-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+        }
+
+        .table-row.top-1 .rank-cell {
+            color: #ffd700;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+        }
+
+        .table-row.top-2 .rank-cell {
+            color: #c0c0c0;
+            text-shadow: 0 0 15px rgba(192, 192, 192, 0.6);
+        }
+
+        .table-row.top-3 .rank-cell {
+            color: #cd7f32;
+            text-shadow: 0 0 15px rgba(205, 127, 50, 0.6);
+        }
+
+        .team-name-cell {
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--text-light);
+        }
+
+        .score-cell {
+            font-weight: 700;
+            color: var(--neon-green);
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.4);
+            font-size: 1.1em;
+        }
+
+        .time-cell {
+            font-family: 'Courier New', monospace;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .empty-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            font-size: 2em;
+            color: var(--text-muted);
+        }
+
+        /* Loading animation */
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .loading {
+            animation: pulse 1.5s infinite;
+        }
+
+        /* Footer */
+        .leaderboard-footer {
+            text-align: center;
+            font-size: 1.4em;
+            color: var(--text-muted);
+            padding: 20px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .update-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: var(--neon-green);
+            border-radius: 50%;
+            margin-right: 10px;
+            animation: blink 1s infinite;
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.6);
+        }
+
+        @keyframes blink {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        /* Medal Badges */
+        .medal {
+            display: inline-block;
+            margin-right: 15px;
+            font-size: 1.4em;
+        }
+
+        .medal.gold::before {
+            content: "🥇";
+        }
+
+        .medal.silver::before {
+            content: "🥈";
+        }
+
+        .medal.bronze::before {
+            content: "🥉";
+        }
+
+        /* Responsive */
+        @media (max-width: 1400px) {
+            .leaderboard-header h1 {
+                font-size: 3em;
+            }
+
+            .table-header {
+                padding: 20px 30px;
+            }
+
+            .table-row {
+                padding: 20px 30px;
+                font-size: 1.4em;
+            }
+
+            .table-header-cell {
+                font-size: 1.5em;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .leaderboard-header h1 {
+                font-size: 2.5em;
+            }
+
+            .table-row {
+                font-size: 1.2em;
+                padding: 15px 20px;
+            }
+
+            .table-header {
+                padding: 15px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="leaderboard-container">
+        <!-- Header -->
+        <div class="leaderboard-header">
+            <h1>🎯 SQUID TECH LEADERBOARD</h1>
+            <p>Live Scores & Rankings</p>
+        </div>
+
+        <!-- Main Leaderboard -->
+        <div class="leaderboard-main">
+            <div class="leaderboard-table-wrapper">
+                <!-- Table Header -->
+                <div class="table-header">
+                    <div class="table-header-cell">Rank</div>
+                    <div class="table-header-cell">Team Name</div>
+                    <div class="table-header-cell">Score</div>
+                    <div class="table-header-cell">Time</div>
+                </div>
+
+                <!-- Table Body -->
+                <div class="leaderboard-body" id="leaderboardBody">
+                    <div class="empty-state">
+                        <span class="loading">Connecting to Firebase...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="leaderboard-footer">
+            <span class="update-indicator"></span>
+            Live Updates • Top 10 Teams
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+    <script src="firebase.js"></script>
+    <script src="firebaseDB.js"></script>
+
+    <script>
+        // ==========================================
+        // SQUID TECH: Live Leaderboard Display
+        // ==========================================
+
+        class LiveLeaderboard {
+            constructor() {
+                this.dom = {
+                    leaderboardBody: document.getElementById('leaderboardBody')
+                };
+
+                this.leaderboardData = [];
+                this.updateInterval = null;
+
+                // Initialize Firebase
+                this.initializeFirebase();
+            }
+
+            /**
+             * Initialize Firebase
+             */
+            initializeFirebase() {
+                // Check if firebaseDB is already loaded
+                if (typeof window.firebaseDB !== 'undefined' && window.firebaseDB) {
+                    console.log('✅ Using existing firebaseDB instance');
+                    this.listenToLeaderboardViaFirebaseDB();
+                    return;
+                }
+
+                // Wait for firebaseDB to load
+                const checkFirebaseDB = setInterval(() => {
+                    if (typeof window.firebaseDB !== 'undefined' && window.firebaseDB) {
+                        clearInterval(checkFirebaseDB);
+                        console.log('✅ firebaseDB loaded, setting up listener');
+                        this.listenToLeaderboardViaFirebaseDB();
+                    }
+                }, 100);
+
+                // Timeout after 5 seconds
+                setTimeout(() => {
+                    clearInterval(checkFirebaseDB);
+                    if (typeof window.firebaseDB === 'undefined') {
+                        console.error('❌ FirebaseDB not available');
+                        this.showEmptyState();
+                    }
+                }, 5000);
+            }
+
+            /**
+             * Listen to leaderboard via firebaseDB wrapper
+             */
+            listenToLeaderboardViaFirebaseDB() {
+                try {
+                    window.firebaseDB.onLeaderboardUpdate((leaderboard) => {
+                        if (leaderboard && leaderboard.length > 0) {
+                            this.leaderboardData = leaderboard;
+                            this.renderLeaderboard();
+                        } else {
+                            this.showEmptyState();
+                        }
+                    });
+                } catch (error) {
+                    console.error('❌ Error setting up leaderboard listener:', error);
+                    this.showEmptyState();
+                }
+            }
+
+            /**
+             * Convert Firebase data to array and sort
+             */
+            convertAndSortLeaderboard(data) {
+                const leaderboard = Object.keys(data).map(teamName => ({
+                    teamName,
+                    score: data[teamName].score || 0,
+                    time: data[teamName].time || 0
+                }));
+
+                // Sort by score (descending), then by time (ascending)
+                leaderboard.sort((a, b) => {
+                    if (b.score !== a.score) {
+                        return b.score - a.score; // Higher score first
+                    }
+                    return a.time - b.time; // Lower time first if scores equal
+                });
+
+                // Return only top 15
+                return leaderboard.slice(0, 15);
+            }
+
+            /**
+             * Render leaderboard to DOM
+             */
+            renderLeaderboard() {
+                if (this.leaderboardData.length === 0) {
+                    this.showEmptyState();
+                    return;
+                }
+
+                const rowsHTML = this.leaderboardData.map((entry, index) => {
+                    const rank = index + 1;
+                    const minutes = Math.floor(entry.time / 60);
+                    const seconds = entry.time % 60;
+                    const timeStr = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+                    let rowClass = 'table-row';
+                    let medal = '';
+
+                    if (rank === 1) {
+                        rowClass += ' top-1';
+                        medal = '<span class="medal gold"></span>';
+                    } else if (rank === 2) {
+                        rowClass += ' top-2';
+                        medal = '<span class="medal silver"></span>';
+                    } else if (rank === 3) {
+                        rowClass += ' top-3';
+                        medal = '<span class="medal bronze"></span>';
+                    }
+
+                    return `
+                        <div class="${rowClass}">
+                            <div class="rank-cell">${medal}#${rank}</div>
+                            <div class="team-name-cell">${this.escapeHtml(entry.teamName)}</div>
+                            <div class="score-cell">${(entry.score || 0).toLocaleString()}</div>
+                            <div class="time-cell">${timeStr}</div>
+                        </div>
+                    `;
+                }).join('');
+
+                this.dom.leaderboardBody.innerHTML = rowsHTML;
+            }
+
+            /**
+             * Show empty state message
+             */
+            showEmptyState() {
+                this.dom.leaderboardBody.innerHTML = `
+                    <div class="empty-state">
+                        <span>Waiting for players...</span>
+                    </div>
+                `;
+            }
+
+            /**
+             * Show error message
+             */
+            showError(message) {
+                this.dom.leaderboardBody.innerHTML = `
+                    <div class="empty-state">
+                        <span>${message}</span>
+                    </div>
+                `;
+            }
+
+            /**
+             * Escape HTML to prevent injection
+             */
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+        }
+
+        // Initialize leaderboard when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            window.liveLeaderboard = new LiveLeaderboard();
+            console.log('✅ Live Leaderboard initialized');
+
+            // Prevent any user interaction
+            document.addEventListener('contextmenu', (e) => e.preventDefault());
+            document.addEventListener('keydown', (e) => e.preventDefault());
+            document.addEventListener('mousedown', (e) => e.preventDefault());
+            document.addEventListener('touchstart', (e) => e.preventDefault());
+        });
+
+        // Prevent scrolling
+        window.addEventListener('scroll', () => {
+            window.scrollTo(0, 0);
+        });
+
+        // Prevent zooming
+        document.addEventListener('wheel', (e) => {
+            if (e.ctrlKey) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+    </script>
+</body>
+</html>

@@ -19,10 +19,15 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 html, body {
     width: 100%;
+    user-select: none;
 }
 
 body {
@@ -82,6 +87,135 @@ body {
     font-size: 1.1em;
     opacity: 0.9;
     letter-spacing: 1px;
+}
+
+/* ==========================================
+   LOBBY - Team Entry & Waiting Screens
+   =========================================== */
+
+.team-entry-screen, .waiting-lobby-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+    padding: 20px;
+}
+
+.lobby-box {
+    background: rgba(20, 25, 50, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    border-radius: 12px;
+    padding: 40px;
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+    margin : auto;
+    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2);
+}
+
+.lobby-box h2 {
+    font-size: 2em;
+    color: var(--neon-green);
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+}
+
+.team-input {
+    width: 100%;
+    padding: 15px;
+    font-size: 1em;
+    background: rgba(102, 126, 234, 0.1);
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    border-radius: 8px;
+    color: var(--text-light);
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.team-input:focus {
+    outline: none;
+    border-color: var(--neon-green);
+    background: rgba(102, 126, 234, 0.2);
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
+}
+
+.team-input::placeholder {
+    color: var(--text-secondary);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.lobby-btn, .leave-btn {
+    display: inline-block;
+    width: 100%;
+    padding: 15px 30px;
+    font-size: 1.1em;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--neon-green) 0%, #00cc33 100%);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 255, 65, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: inherit;
+}
+
+.lobby-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 255, 65, 0.5);
+}
+
+.lobby-btn:active {
+    transform: translateY(0);
+}
+
+.leave-btn {
+    background: linear-gradient(135deg, var(--primary-red) 0%, #ff3366 100%);
+    color: white;
+    font-size: 0.95em;
+}
+
+.leave-btn:hover {
+    box-shadow: 0 6px 20px rgba(255, 0, 65, 0.5);
+}
+
+.team-badge {
+    display: inline-block;
+    background: rgba(0, 255, 65, 0.2);
+    color: var(--neon-green);
+    padding: 15px 30px;
+    border-radius: 50px;
+    border: 2px solid var(--neon-green);
+    font-size: 1.2em;
+    font-weight: 600;
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
+}
+
+.lobby-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin: 30px 0;
+    padding: 15px;
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 8px;
+    border-left: 4px solid var(--neon-green);
+}
+
+.status-pulse {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--neon-green);
+    box-shadow: 0 0 8px rgba(0, 255, 65, 0.6);
+    animation: pulse 1.5s infinite;
 }
 
 /* ==========================================
@@ -691,7 +825,7 @@ body {
         padding: 30px 25px;
     }
 }
-}
+
 
 .stat-label {
     font-size: 0.85em;

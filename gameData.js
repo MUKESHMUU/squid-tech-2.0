@@ -1,363 +1,219 @@
-// Sample game data - 30 beginner-friendly coding scenario rounds with MCQ
+// ==========================================
+// SQUID TECH: 30 Technical Event MCQ Questions
+// ==========================================
+// Format: {id, scenario, question, options, correctAnswer (as index)}
+
 const GAME_SCENARIOS = [
     {
         id: 1,
-        scenario: "You're trying to log into an app but forgot your password. The app asks you security questions to verify your identity.",
-        question: "What is the app verifying?",
-        correctAnswer: 2,
-        options: [
-            "Your phone number",
-            "Your internet speed",
-            "Your identity",
-            "Your payment method"
-        ]
+        scenario: "A cloud server runs four processes P1, P2, P3 and P4. Process P1 holds resource R1 and waits for R2. P2 holds R2 and waits for R3. P3 holds R3 and waits for R4. P4 holds R4 and waits for R1. None can proceed.",
+        question: "What is the primary OS problem occurring here?",
+        options: ["Starvation", "Deadlock", "Thrashing", "Context Switching"],
+        correctAnswer: 1
     },
     {
         id: 2,
-        scenario: "Your friend shares a Google Drive link with you to edit a document. You can see and edit the file without downloading it.",
-        question: "What technology allows this?",
-        correctAnswer: 0,
-        options: [
-            "Cloud storage",
-            "USB cable",
-            "Email attachment",
-            "Bluetooth"
-        ]
+        scenario: "A web server has 8GB RAM. When traffic spikes, the operating system constantly swaps pages between RAM and disk. This causes severe performance degradation even though CPU usage is low.",
+        question: "What phenomenon is occurring?",
+        options: ["Memory leak", "Thrashing", "Page fragmentation", "Cache miss"],
+        correctAnswer: 1
     },
     {
         id: 3,
-        scenario: "A website loads slowly. You check and find that the page has 50 large images that download one by one.",
-        question: "What would speed up the loading?",
-        correctAnswer: 1,
-        options: [
-            "Adding more images",
-            "Making images smaller or loading them in parallel",
-            "Increasing the website size",
-            "Adding more text"
-        ]
+        scenario: "Process A with high priority continuously arrives at a CPU queue. Process B with lower priority has been waiting for 10 minutes but never gets CPU time.",
+        question: "What starvation prevention technique should be used?",
+        options: ["Round-robin scheduling", "Aging", "Preemption", "Batch processing"],
+        correctAnswer: 1
     },
     {
         id: 4,
-        scenario: "You're building a simple to-do list app. Each item has a name and a completion status (done/not done).",
-        question: "What is this structure called?",
-        correctAnswer: 2,
-        options: [
-            "Algorithm",
-            "Database",
-            "Data structure",
-            "Loop"
-        ]
+        scenario: "A database transaction reads a value X=10, increments it to 11, but another transaction reads the old value 10 simultaneously before the write completes.",
+        question: "What concurrency issue occurred?",
+        options: ["Dirty read", "Lost update", "Phantom read", "Non-repeatable read"],
+        correctAnswer: 0
     },
     {
         id: 5,
-        scenario: "Your app crashes when 1000 users try to access it at the same time, but works fine with 100 users.",
-        question: "What is the issue?",
-        correctAnswer: 3,
-        options: [
-            "The app is broken",
-            "Users are slow",
-            "The server is too fast",
-            "The server cannot handle the load"
-        ]
+        scenario: "A REST API has 5000 requests/minute. Each request takes 10ms average. The server has 500 available threads. After 50 seconds, new requests start getting rejected immediately.",
+        question: "What is the most likely cause?",
+        options: ["Memory exhaustion", "Thread pool exhaustion", "Network bandwidth limit", "Disk I/O bottleneck"],
+        correctAnswer: 1
     },
     {
         id: 6,
-        scenario: "A password is 'password123'. An attacker tries to guess it by trying common passwords like 'password', 'qwerty', '123456'.",
-        question: "What attack is this?",
-        correctAnswer: 1,
-        options: [
-            "Hacking",
-            "Brute force attack",
-            "Malware",
-            "Phishing"
-        ]
+        scenario: "A critical system experiences complete failure because the load balancer was not updated when a new server was added. The load balancer still thinks the old 4 servers handle all traffic.",
+        question: "What failure pattern is this?",
+        options: ["Byzantine failure", "Configuration drift", "Cascading failure", "Split-brain"],
+        correctAnswer: 1
     },
     {
         id: 7,
-        scenario: "You write a function that takes 2 numbers and returns their sum. You test it with 10 test cases and it passes all.",
-        question: "What is this testing called?",
-        correctAnswer: 0,
-        options: [
-            "Unit testing",
-            "System testing",
-            "Integration testing",
-            "Manual testing"
-        ]
+        scenario: "A TCP connection between client and server exchanges 3-way handshake successfully. Data flows fine. After 30 minutes of idle time, the client tries to send data but gets no response.",
+        question: "What network issue likely occurred?",
+        options: ["TCP timeout", "NAT gateway reset connection", "Packet loss", "DNS failure"],
+        correctAnswer: 1
     },
     {
         id: 8,
-        scenario: "A company's website is down for 2 hours. During this time, no one can access it. The company loses customers.",
-        question: "What does the company need?",
-        correctAnswer: 2,
-        options: [
-            "More developers",
-            "Bigger budget",
-            "Better uptime/reliability",
-            "Faster internet"
-        ]
+        scenario: "A microservice processes requests in a specific order: Service A -> Service B -> Service C. Service B crashes, but Service A and C continue running. Requests to A succeed but fail at B.",
+        question: "What resilience pattern was not implemented?",
+        options: ["Rate limiting", "Circuit breaker", "Load balancing", "Caching"],
+        correctAnswer: 1
     },
     {
         id: 9,
-        scenario: "You're using a mobile app that stores your login session so you don't have to log in every time you open it.",
-        question: "What is being used?",
-        correctAnswer: 3,
-        options: [
-            "Cache memory",
-            "RAM",
-            "Cloud storage",
-            "Session/token storage"
-        ]
+        scenario: "A database query joins 5 large tables with no indexes. The query takes 45 seconds on first run. On second run, it takes 3 seconds without code changes.",
+        question: "What optimization happened implicitly?",
+        options: ["Query rewriting", "Plan caching", "Result caching", "Parallel execution"],
+        correctAnswer: 1
     },
     {
         id: 10,
-        scenario: "A social media feed shows a mix of posts, stories, and ads. The order changes based on your activity and interactions.",
-        question: "What technology personalizes this?",
-        correctAnswer: 1,
-        options: [
-            "Database",
-            "Algorithm",
-            "API",
-            "Server"
-        ]
+        scenario: "Two database transactions try to update the same row. Transaction 1 gets a shared lock, Transaction 2 needs an exclusive lock. Both are blocked indefinitely trying to upgrade.",
+        question: "What is this deadlock scenario called?",
+        options: ["Hold and wait", "Circular wait", "Lock escalation deadlock", "Livelock"],
+        correctAnswer: 2
     },
     {
         id: 11,
-        scenario: "Your school uses a system to send emails to all 500 students at once instead of typing each email individually.",
-        question: "What is being used?",
-        correctAnswer: 0,
-        options: [
-            "Batch processing",
-            "Parallel processing",
-            "Loop iteration",
-            "API call"
-        ]
+        scenario: "A cache stores customer session data. During peak traffic, the cache reaches max capacity at 10GB. New sessions cannot be stored. The system administrator must decide which sessions to evict.",
+        question: "What caching policy decision is needed?",
+        options: ["LRU eviction", "FIFO eviction", "TTL setting", "Write-through strategy"],
+        correctAnswer: 0
     },
     {
         id: 12,
-        scenario: "A mobile app asks for permission to access your camera, location, and contacts before you can use it.",
-        question: "What is this called?",
-        correctAnswer: 2,
-        options: [
-            "Encryption",
-            "Authentication",
-            "Authorization/Permissions",
-            "Verification"
-        ]
+        scenario: "A file server replicates data across 3 nodes. During write, it waits for all 3 nodes to acknowledge. If any node fails, the entire write fails even if 2 nodes succeed.",
+        question: "What consistency model is this?",
+        options: ["Eventual consistency", "Strong consistency", "Causal consistency", "Read-after-write"],
+        correctAnswer: 1
     },
     {
         id: 13,
-        scenario: "You click a 'Sign in with Google' button instead of creating a new account on a website.",
-        question: "What is this feature?",
-        correctAnswer: 1,
-        options: [
-            "Two-factor authentication",
-            "Single sign-on (SSO)",
-            "Session management",
-            "Password reset"
-        ]
+        scenario: "An API rate limiter allows 1000 requests/minute per IP. Requests arrive in bursts of 500 every 12 seconds. Some burst requests are rejected even though average is below limit.",
+        question: "What advanced rate limiting would help?",
+        options: ["Token bucket", "Sliding window", "Leaky bucket", "Fixed window"],
+        correctAnswer: 0
     },
     {
         id: 14,
-        scenario: "A video streaming app buffers (loads in advance) while you watch. It downloads the next 30 seconds of video ahead of time.",
-        question: "Why does it do this?",
-        correctAnswer: 3,
-        options: [
-            "To waste data",
-            "To make the app slower",
-            "To store the entire video",
-            "To prevent interruptions during playback"
-        ]
+        scenario: "A garbage collector pauses the entire application for 2 seconds every 30 seconds to reclaim memory. The application is a stock trading system that cannot tolerate 2s pauses.",
+        question: "What garbage collection improvement is needed?",
+        options: ["Generational GC", "Incremental GC", "Concurrent GC", "Mark-and-sweep"],
+        correctAnswer: 2
     },
     {
         id: 15,
-        scenario: "You receive an email claiming to be from your bank asking you to click a link and verify your account details.",
-        question: "What type of attack is this?",
-        correctAnswer: 0,
-        options: [
-            "Phishing",
-            "Ransomware",
-            "Virus",
-            "DDoS attack"
-        ]
+        scenario: "A distributed system uses IP addresses for node identification. When nodes restart with new IPs, consensus breaks because old addresses are hardcoded in configuration.",
+        question: "What architectural pattern prevents this?",
+        options: ["Service mesh", "Service discovery", "Load balancing", "DNS aliasing"],
+        correctAnswer: 1
     },
     {
         id: 16,
-        scenario: "A file is locked and only certain people can open it. Others see 'Access Denied'.",
-        question: "What controls this?",
-        correctAnswer: 2,
-        options: [
-            "Firewall",
-            "Antivirus",
-            "Access control/Permissions",
-            "Proxy"
-        ]
+        scenario: "A backup process completes successfully daily, but when tested, the backup cannot restore to the original state. Files are missing or corrupted.",
+        question: "What is being neglected?",
+        options: ["Backup compression", "Backup verification", "Incremental backup", "Off-site backup"],
+        correctAnswer: 1
     },
     {
         id: 17,
-        scenario: "Your internet is slow. You restart your router and the speed improves. This is a common troubleshooting step.",
-        question: "What might restarting fix?",
-        correctAnswer: 1,
-        options: [
-            "Hardware damage",
-            "Temporary bugs and memory issues",
-            "Broken internet cables",
-            "ISP problems"
-        ]
+        scenario: "Two services communicate via REST. Service A calls Service B, which calls Service C, which calls A back. This creates a circular dependency at runtime.",
+        question: "What architecture problem is this?",
+        options: ["Tight coupling", "Circular dependency", "Missing abstraction", "God object"],
+        correctAnswer: 1
     },
     {
         id: 18,
-        scenario: "A payment website encrypts your credit card details before sending them to the server so hackers cannot read them.",
-        question: "What security measure is this?",
-        correctAnswer: 0,
-        options: [
-            "Encryption",
-            "Hashing",
-            "Authentication",
-            "Tokenization"
-        ]
+        scenario: "A packet sent from source to destination takes 50ms over direct path or 55ms via backup path. The network switches between paths every 100 packets causing disorder.",
+        question: "What protocol feature can prevent out-of-order handling?",
+        options: ["Windowing", "Sequencing", "Acknowledgments", "Checksums"],
+        correctAnswer: 1
     },
     {
         id: 19,
-        scenario: "An app requests different levels of access depending on what you're doing - basic access for viewing, higher access for editing.",
-        question: "What principle is this?",
-        correctAnswer: 3,
-        options: [
-            "Zero trust",
-            "Defense in depth",
-            "Least privilege escalation",
-            "Principle of least privilege"
-        ]
+        scenario: "A memory-intensive application allocates 100MB chunks repeatedly. After 48 hours, available memory fragments into many small pieces. Large allocations start failing.",
+        question: "What is the underlying problem?",
+        options: ["Memory leak", "Heap fragmentation", "Swapping", "Buffer overflow"],
+        correctAnswer: 1
     },
     {
         id: 20,
-        scenario: "A website shows loading times: 5 seconds with no cache, 0.5 seconds with cache. Cache stores recently accessed data.",
-        question: "Why is caching beneficial?",
-        correctAnswer: 2,
-        options: [
-            "To make servers crash",
-            "To increase storage",
-            "To speed up data retrieval",
-            "To decrease memory"
-        ]
+        scenario: "A log aggregation system loses logs during network partitions between the server and agent. Critical error logs are missing from the final log store.",
+        question: "What durability mechanism is missing?",
+        options: ["Replication", "Local buffering", "Compression", "Encryption"],
+        correctAnswer: 1
     },
     {
         id: 21,
-        scenario: "You're buying something online. The website has SSL (green lock icon) before you enter payment details.",
-        question: "What does SSL do?",
-        correctAnswer: 1,
-        options: [
-            "Checks your payment",
-            "Encrypts your connection",
-            "Verifies the seller",
-            "Increases speed"
-        ]
+        scenario: "Database statistics show that a frequently used index is never actually used by the query optimizer. The index consumes 5GB of storage and slows down inserts.",
+        question: "What data structure decision was incorrect?",
+        options: ["Wrong index type", "Over-indexing", "Index fragmentation", "Column selectivity"],
+        correctAnswer: 1
     },
     {
         id: 22,
-        scenario: "An app crashes and shows an error message with a code. The developer uses this code to find and fix the bug.",
-        question: "What is this process?",
-        correctAnswer: 3,
-        options: [
-            "Coding",
-            "Testing",
-            "Deployment",
-            "Debugging"
-        ]
+        scenario: "A system processes 10000 events per second. Events are written to a single database table with a sequentially incrementing primary key, causing contention.",
+        question: "What key generation strategy would scale better?",
+        options: ["UUID", "Timestamp", "Snowflake ID", "Hash-based partitioning"],
+        correctAnswer: 0
     },
     {
         id: 23,
-        scenario: "A service API allows 100 requests per minute per user. Your app tries to make 200 requests in a minute.",
-        question: "What happens?",
-        correctAnswer: 0,
-        options: [
-            "Extra requests are rejected (rate limited)",
-            "All requests are accepted",
-            "The server crashes",
-            "Requests are delayed by 1 hour"
-        ]
+        scenario: "An application uses a single-threaded event loop. When processing a CPU-intensive task, all network requests timeout because the loop cannot accept new events.",
+        question: "What pattern would prevent blocking?",
+        options: ["Worker threads", "Async/await", "Thread pooling", "Callback queue"],
+        correctAnswer: 0
     },
     {
         id: 24,
-        scenario: "You use the same password for email, social media, and banking. One site gets hacked.",
-        question: "What is the consequence?",
-        correctAnswer: 2,
-        options: [
-            "Only that site is affected",
-            "Your phone gets hacked",
-            "All your accounts are at risk",
-            "Nothing happens"
-        ]
+        scenario: "A NoSQL database spreads data across 10 nodes with replication factor 3. One node fails. The data is still accessible but with reduced performance due to uneven distribution.",
+        question: "What rebalancing process should occur?",
+        options: ["Resharding", "Recompacting", "Defragmentation", "Reconstruction"],
+        correctAnswer: 0
     },
     {
         id: 25,
-        scenario: "A developer writes code that checks if a number is negative before processing it. This prevents errors.",
-        question: "What is this called?",
-        correctAnswer: 1,
-        options: [
-            "Compilation",
-            "Validation",
-            "Execution",
-            "Interpretation"
-        ]
+        scenario: "An HTTP/1.1 client makes 100 requests to the same server sequentially. Each request opens a new TCP connection because keep-alive is disabled.",
+        question: "What HTTP feature reduces overhead?",
+        options: ["Pipelining", "Multiplexing", "Keep-alive", "Compression"],
+        correctAnswer: 2
     },
     {
         id: 26,
-        scenario: "A company backs up all its data to a separate location every day to protect against data loss.",
-        question: "What is this practice called?",
-        correctAnswer: 0,
-        options: [
-            "Backup and disaster recovery",
-            "Data migration",
-            "Data compression",
-            "Data encryption"
-        ]
+        scenario: "A cryptographic key is hardcoded in source code and committed to git. The code is open-sourced, exposing the key to everyone. The key is now compromised.",
+        question: "What best practice was violated?",
+        options: ["Key rotation", "Key separation", "Secure storage", "Access control"],
+        correctAnswer: 2
     },
     {
         id: 27,
-        scenario: "A mobile app shows a spinning wheel while data loads from the server. This tells the user the app is working.",
-        question: "What is this element?",
-        correctAnswer: 2,
-        options: [
-            "Button",
-            "Form",
-            "Loading indicator",
-            "Navigation bar"
-        ]
+        scenario: "A system monitors CPU, memory, and disk usage but ignores network I/O saturation. The application works fine locally but fails when deployed with high network traffic.",
+        question: "What observability gap exists?",
+        options: ["Missing metrics", "Insufficient sampling", "No tracing", "Incomplete profiling"],
+        correctAnswer: 0
     },
     {
         id: 28,
-        scenario: "A website uses a to-do list feature. Each task can have subtasks, and subtasks can have sub-subtasks.",
-        question: "What structure is this?",
-        correctAnswer: 3,
-        options: [
-            "Linear list",
-            "Hash table",
-            "Graph",
-            "Tree or nested structure"
-        ]
+        scenario: "A test environment exactly mirrors production with same hardware, OS, and versions. Tests pass in staging but fail in production under real load.",
+        question: "What testing scenario was not covered?",
+        options: ["Regression test", "Load test", "Integration test", "Unit test"],
+        correctAnswer: 1
     },
     {
         id: 29,
-        scenario: "Your app opens a PDF file that doesn't exist. It crashes because the file path is invalid.",
-        question: "What should the app do?",
-        correctAnswer: 1,
-        options: [
-            "Ignore the error",
-            "Check if file exists before opening it (error handling)",
-            "Delete the file",
-            "Restart the app"
-        ]
+        scenario: "A container image is 2GB because it includes all development tools, source code, and test files. Pulling this image takes 10 minutes, slowing down deployment.",
+        question: "What container best practice should be applied?",
+        options: ["Layer caching", "Multi-stage builds", "Image signing", "Registry mirroring"],
+        correctAnswer: 1
     },
     {
         id: 30,
-        scenario: "A student writes a project report and saves it as PDF. They share the PDF with others who can view but not edit it.",
-        question: "What advantage does PDF have?",
-        correctAnswer: 0,
-        options: [
-            "Read-only format preserves original formatting",
-            "PDF loads faster than Word",
-            "PDF takes less space",
-            "PDF allows editing on all devices"
-        ]
+        scenario: "A system recovers from failure by restarting all services simultaneously. During recovery, the database is flooded with reconnection requests and becomes overloaded.",
+        question: "What failure recovery pattern would help?",
+        options: ["Exponential backoff", "Circuit breaker", "Bulkhead isolation", "Graceful degradation"],
+        correctAnswer: 0
     }
 ];
+
+

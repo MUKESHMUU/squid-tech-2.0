@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SQUID TECH: Code to Survive - Round 1</title>
+    <title>SQUID TECH: Code to Survive</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -11,11 +12,53 @@
         <!-- Header -->
         <header class="game-header">
             <h1>SQUID TECH: Code to Survive</h1>
-            <p class="subtitle">Round 1 - Green Light 🟢 / Red Light 🔴</p>
+            <p class="subtitle">Technical Knowledge Challenge</p>
+            <p class="team-display" id="teamDisplay" style="margin-top: 10px; font-size: 0.95em; opacity: 0.9; display: none;">Team: <span id="headerTeamName">Unknown</span></p>
         </header>
 
+        <!-- Team Entry Screen -->
+        <div class="team-entry-screen" id="teamEntryScreen">
+            <div class="lobby-box">
+                <h2>👥 Welcome to SQUID TECH</h2>
+                <p style="margin-bottom: 20px; color: var(--text-secondary);">Enter your team name to join the lobby</p>
+                
+                <div class="form-group">
+                    <input type="text" id="teamNameInput" class="team-input" placeholder="Enter your team name" autocomplete="off">
+                </div>
+
+                <button id="joinLobbyBtn" class="lobby-btn">🚪 Join Lobby</button>
+                
+                <div id="teamErrorMsg" style="color: var(--primary-red); margin-top: 15px; text-align: center; display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Waiting Lobby Screen -->
+        <div class="waiting-lobby-screen" id="waitingLobbyScreen" style="display: none;">
+            <div class="lobby-box">
+                <h2>⏳ Waiting Lobby</h2>
+                <div class="team-badge" id="teamBadge" style="margin: 20px 0;">
+                    👤 <span id="teamNameDisplay">Unknown</span>
+                </div>
+                
+                <div class="lobby-position" id="lobbyPosition" style="margin: 15px 0; text-align: center; font-size: 1.1em; color: var(--neon-green);">
+                    Teams Joined: 0 / 200
+                </div>
+                
+                <div class="lobby-status">
+                    <div class="status-pulse"></div>
+                    <span id="lobbyStatusText">Waiting for admin to start the game...</span>
+                </div>
+
+                <p style="margin-top: 20px; color: var(--text-secondary); text-align: center; font-size: 0.9em;">
+                    🎯 Admin is preparing the game. Please wait...
+                </p>
+
+                <button id="leaveBtn" class="leave-btn" style="margin-top: 20px;">← Leave Lobby</button>
+            </div>
+        </div>
+
         <!-- Game Stats -->
-        <div class="game-stats">
+        <div class="game-stats" id="gameStats" style="display: none;">
             <div class="stat-box">
                 <span class="stat-label">Round</span>
                 <span class="stat-value" id="currentRound">1</span> / 30
@@ -31,7 +74,7 @@
         </div>
 
         <!-- Game Board -->
-        <div class="game-board">
+        <div class="game-board" id="gameBoard" style="display: none;">
             <!-- Phase Indicator -->
             <div class="phase-indicator" id="phaseIndicator">
                 <div class="phase-light"></div>
@@ -95,24 +138,256 @@
                         <span class="final-value" id="finalTime">00:00</span>
                     </div>
                 </div>
-                <button id="restartBtn" class="restart-btn">Play Again</button>
             </div>
         </div>
 
         <!-- Instructions -->
-        <div class="instructions">
-            <h3>How to Play</h3>
+        <div class="instructions" id="instructionsSection" style="display: none;">
+            <h3>📋 How to Play</h3>
             <ul>
                 <li><strong>🟢 Green Light:</strong> Read the scenario carefully (10-45 seconds)</li>
                 <li><strong>🔴 Red Light:</strong> Answer the question within 30 seconds</li>
-                <li><strong>⏱️ Scoring:</strong> Answer ≤15s = 1500 points | Answer >15s-30s = 1300 points</li>
-                <li><strong>❌ Wrong Answer:</strong> If score ≥200, reduce to 200. If score =0, stay 0</li>
-                <li>Complete all 30 rounds for your final score</li>
+                <li><strong>⚡ Correct Answer ≤15s:</strong> +1500 points</li>
+                <li><strong>✓ Correct Answer >15s-30s:</strong> +1300 points</li>
+                <li><strong>❌ Wrong Answer:</strong> -200 points (if score ≥200) or reset to 0</li>
+                <li><strong>⏱️ No Answer:</strong> -100 points (if score ≥100) or reset to 0</li>
+                <li>Complete all 30 rounds to see your final score</li>
             </ul>
         </div>
     </div>
 
+    <!-- Scripts -->
+     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+    <script src="firebase.js"></script>
+    <script src="firebaseDB.js"></script>
+
+    <script src="security.js"></script>
+    <script src="lobby.js"></script>
     <script src="gameData.js"></script>
     <script src="gameLogic.js"></script>
+    <script>
+        // ==========================================
+        // LOBBY PAGE LOGIC
+        // ==========================================
+
+        class LobbyUI {
+            constructor() {
+                this.dom = {
+                    teamEntryScreen: document.getElementById('teamEntryScreen'),
+                    waitingLobbyScreen: document.getElementById('waitingLobbyScreen'),
+                    gameStats: document.getElementById('gameStats'),
+                    gameBoard: document.getElementById('gameBoard'),
+                    instructionsSection: document.getElementById('instructionsSection'),
+                    teamNameInput: document.getElementById('teamNameInput'),
+                    joinLobbyBtn: document.getElementById('joinLobbyBtn'),
+                    testLeaveBtn: document.getElementById('leaveBtn'),
+                    teamErrorMsg: document.getElementById('teamErrorMsg'),
+                    teamNameDisplay: document.getElementById('teamNameDisplay'),
+                    lobbyStatusText: document.getElementById('lobbyStatusText'),
+                    lobbyPosition: document.getElementById('lobbyPosition')
+                };
+
+                this.setupEventListeners();
+                
+                // Check game state asynchronously
+                setTimeout(() => {
+                    this.checkGameState();
+                }, 100);
+            }
+
+            setupEventListeners() {
+                // Join lobby
+                this.dom.joinLobbyBtn.addEventListener('click', () => this.handleJoinLobby());
+                this.dom.teamNameInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.handleJoinLobby();
+                    }
+                });
+
+                // Leave lobby
+                this.dom.testLeaveBtn.addEventListener('click', () => this.handleLeaveLobby());
+
+                // Game start listener
+                lobbyManager.registerListener('GameStart', () => this.handleGameStart());
+                
+                // Teams update listener - get teams from Firebase
+                if (typeof window.firebaseDB !== 'undefined') {
+                    window.firebaseDB.onTeamsUpdate((teams) => {
+                        if (this.dom.waitingLobbyScreen && this.dom.waitingLobbyScreen.style.display !== 'none') {
+                            this.updateLobbyPosition(teams);
+                        }
+                    });
+                }
+            }
+
+            /**
+             * Handle joining lobby
+             */
+            async handleJoinLobby() {
+                const teamName = this.dom.teamNameInput.value.trim();
+                
+                if (!teamName) {
+                    this.showError('Please enter a team name');
+                    return;
+                }
+
+                const result = await lobbyManager.joinLobby(teamName);
+                
+                if (result.success) {
+                    this.dom.teamNameDisplay.textContent = teamName;
+                    this.showWaitingLobby();
+                    this.updateLobbyPosition();
+                    this.dom.teamErrorMsg.style.display = 'none';
+                    
+                    // Start listening for game start
+                    this.startListeningForGameStart();
+                } else {
+                    this.showError(result.message);
+                }
+            }
+
+            /**
+             * Handle leaving lobby
+             */
+            handleLeaveLobby() {
+                if (confirm('Are you sure you want to leave the lobby?')) {
+                    lobbyManager.resetLobby();
+                    this.dom.teamNameInput.value = '';
+                    this.showTeamEntry();
+                }
+            }
+
+            /**
+             * Show team entry screen
+             */
+            showTeamEntry() {
+                this.dom.teamEntryScreen.style.display = 'block';
+                this.dom.waitingLobbyScreen.style.display = 'none';
+                this.dom.gameStats.style.display = 'none';
+                this.dom.gameBoard.style.display = 'none';
+                this.dom.instructionsSection.style.display = 'none';
+            }
+
+            /**
+             * Show waiting lobby screen
+             */
+            showWaitingLobby() {
+                this.dom.teamEntryScreen.style.display = 'none';
+                this.dom.waitingLobbyScreen.style.display = 'block';
+                this.dom.gameStats.style.display = 'none';
+                this.dom.gameBoard.style.display = 'none';
+                this.dom.instructionsSection.style.display = 'none';
+                this.updateLobbyPosition();
+            }
+
+            /**
+             * Show game screen
+             */
+            showGameScreen() {
+                this.dom.teamEntryScreen.style.display = 'none';
+                this.dom.waitingLobbyScreen.style.display = 'none';
+                this.dom.gameStats.style.display = 'grid';
+                this.dom.gameBoard.style.display = 'flex';
+                this.dom.instructionsSection.style.display = 'block';
+            }
+            /**
+             * Update lobby position display
+             */
+            updateLobbyPosition(teams = []) {
+                const count = teams && Array.isArray(teams) ? teams.length : 0;
+                if (this.dom.lobbyPosition) {
+                    this.dom.lobbyPosition.textContent = `Teams Joined: ${count} / 200`;
+                }
+            }
+            /**
+             * Show error message
+             */
+            showError(message) {
+                this.dom.teamErrorMsg.textContent = message;
+                this.dom.teamErrorMsg.style.display = 'block';
+            }
+
+            /**
+             * Start listening for game start signal
+             */
+            startListeningForGameStart() {
+                // Check immediately if game already started
+                (async () => {
+                    const isStarted = await lobbyManager.isGameStarted();
+                    if (isStarted) {
+                        this.handleGameStart();
+                        return;
+                    }
+                })();
+
+                // Listen for game start through Firebase via registered listener
+                lobbyManager.registerListener('GameStart', () => {
+                    this.handleGameStart();
+                });
+            }
+
+            /**
+             * Handle game start from admin
+             */
+            handleGameStart() {
+                console.log('🎮 Game Starting!');
+                
+                // Activate security measures
+                if (window.securityManager) {
+                    securityManager.activateDuringGame();
+                }
+                
+                // Force fullscreen mode
+                enterFullscreen();
+                
+                this.showGameScreen();
+                
+                // Give a small delay for UI rendering, then start game
+                setTimeout(() => {
+                    if (window.game) {
+                        window.game.startGame();
+                    }
+                }, 500);
+            }
+
+            /**
+             * Check initial game state
+             */
+            async checkGameState() {
+                const currentTeam = lobbyManager.getCurrentTeam();
+                
+                if (currentTeam && await lobbyManager.isGameStarted()) {
+                    // Game already started - restore progress from Firebase
+                    this.dom.teamNameDisplay.textContent = currentTeam.name;
+                    const playerProgress = await lobbyManager.restorePlayerProgress(currentTeam.name);
+                    
+                    // Store progress for game logic to restore
+                    if (playerProgress) {
+                        sessionStorage.setItem('restoredProgress', JSON.stringify(playerProgress));
+                    }
+                    
+                    this.showGameScreen();
+                    this.handleGameStart();
+                } else if (currentTeam) {
+                    // In lobby waiting
+                    this.dom.teamNameDisplay.textContent = currentTeam.name;
+                    this.showWaitingLobby();
+                    this.updateLobbyPosition();
+                    this.startListeningForGameStart();
+                } else {
+                    // Show team entry
+                    this.showTeamEntry();
+                }
+            }
+        }
+
+        // Initialize lobby UI when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            window.lobbyUI = new LobbyUI();
+            console.log('🎯 Lobby UI initialized');
+        });
+    </script>
 </body>
 </html>

@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQUID TECH: Admin Panel</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Admin-specific styles */
+        .admin-container {
+            width: 95%;
+            max-width: 1200px;
+            margin: 20px auto;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+            border: 1px solid rgba(102, 126, 234, 0.5);
+        }
+
+        .admin-header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(102, 126, 234, 0.6);
+            font-weight: 700;
+        }
+
+        .admin-header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .admin-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .admin-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .panel-box {
+            background: rgba(20, 25, 50, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .panel-box h2 {
+            color: var(--neon-green);
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+
+        .teams-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .team-item {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .team-item:hover {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: rgba(102, 126, 234, 0.4);
+        }
+
+        .team-name {
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 1.1em;
+        }
+
+        .team-status {
+            background: rgba(0, 255, 65, 0.2);
+            color: var(--neon-green);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .team-count {
+            font-size: 2em;
+            font-weight: 900;
+            color: var(--neon-green);
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+            margin: 10px 0;
+        }
+
+        .admin-button {
+            background: linear-gradient(135deg, var(--primary-green) 0%, #00cc33 100%);
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 255, 65, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .admin-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 255, 65, 0.5);
+        }
+
+        .admin-button:active {
+            transform: translateY(0);
+        }
+
+        .admin-button.start {
+            background: linear-gradient(135deg, var(--primary-green) 0%, #00ff41 100%);
+            font-size: 1.3em;
+            padding: 18px 40px;
+        }
+
+        .admin-button.reset {
+            background: linear-gradient(135deg, var(--primary-red) 0%, #ff3366 100%);
+            color: white;
+            font-size: 0.95em;
+            padding: 12px 20px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+            padding: 12px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid var(--neon-green);
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--neon-green);
+            box-shadow: 0 0 8px rgba(0, 255, 65, 0.6);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .status-text {
+            color: var(--text-light);
+            font-size: 0.95em;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 30px 20px;
+            font-size: 1.05em;
+        }
+
+        .controls-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .admin-content {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-header h1 {
+                font-size: 2em;
+            }
+        }
+
+        /* Leaderboard Styles */
+        .leaderboard-section {
+            width: 100%;
+            margin-top: 30px;
+        }
+
+        .leaderboard-box {
+            background: rgba(20, 25, 50, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .leaderboard-box h2 {
+            color: var(--neon-green);
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            color: var(--text-light);
+        }
+
+        .leaderboard-table thead {
+            background: rgba(102, 126, 234, 0.2);
+            border-bottom: 2px solid rgba(102, 126, 234, 0.4);
+        }
+
+        .leaderboard-table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 700;
+            color: var(--neon-green);
+            text-transform: uppercase;
+            font-size: 0.9em;
+            letter-spacing: 1px;
+        }
+
+        .leaderboard-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .leaderboard-table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .leaderboard-table tbody tr:hover {
+            background: rgba(102, 126, 234, 0.15);
+        }
+
+        .leaderboard-rank {
+            font-weight: 700;
+            color: var(--neon-green);
+            font-size: 1.2em;
+        }
+
+        .leaderboard-rank.first {
+            color: #ffd700;
+        }
+
+        .leaderboard-rank.second {
+            color: #c0c0c0;
+        }
+
+        .leaderboard-rank.third {
+            color: #cd7f32;
+        }
+
+        .leaderboard-team-name {
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .leaderboard-score {
+            font-weight: 600;
+            color: var(--neon-green);
+            font-size: 1.05em;
+        }
+
+        .leaderboard-time {
+            color: var(--text-secondary);
+            font-family: monospace;
+        }
+
+        .leaderboard-empty {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 40px 20px;
+            font-size: 1.05em;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Admin Header -->
+        <header class="admin-header">
+            <h1>🎮 ADMIN PANEL</h1>
+            <p>SQUID TECH: Code to Survive - Game Control Center</p>
+        </header>
+
+        <!-- Admin Content -->
+        <div class="admin-content">
+            <!-- Teams Panel -->
+            <div class="admin-panel">
+                <div class="panel-box">
+                    <h2>👥 Teams Joined</h2>
+                    <div class="team-count" id="teamCount">0</div>
+                    <div class="teams-list" id="teamsList">
+                        <div class="empty-state">No teams joined yet</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls Panel -->
+            <div class="admin-panel">
+                <div class="panel-box controls-section">
+                    <h2>⚙️ Game Control</h2>
+                    
+                    <div class="status-indicator">
+                        <div class="status-dot" id="statusDot"></div>
+                        <span class="status-text" id="statusText">Waiting for teams...</span>
+                    </div>
+
+                    <button class="admin-button start" id="startGameBtn" disabled>
+                        🟢 Start Game
+                    </button>
+
+                    <button class="admin-button reset" id="resetLobbyBtn">
+                        🔄 Reset Lobby
+                    </button>
+                </div>
+
+                <div class="panel-box">
+                    <h2>📋 Instructions</h2>
+                    <p style="color: var(--text-secondary); line-height: 1.6; font-size: 0.95em;">
+                        <strong>1.</strong> Wait for teams to join<br>
+                        <strong>2.</strong> Click "Start Game" when ready<br>
+                        <strong>3.</strong> All participants will begin Round 1<br>
+                        <strong>4.</strong> Monitor real-time progress<br>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Leaderboard -->
+        <div class="leaderboard-section">
+            <div class="leaderboard-box">
+                <h2>🏆 Live Leaderboard</h2>
+                <table class="leaderboard-table" id="leaderboardTable">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Team Name</th>
+                            <th>Score</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardBody">
+                        <tr>
+                            <td colspan="4" class="leaderboard-empty">Game in progress...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+    
+    <script src="firebase.js"></script>
+    <script src="firebaseDB.js"></script>
+    <script src="lobby.js"></script>
+    <script>
+        // ==========================================
+        // ADMIN PAGE LOGIC
+        // ==========================================
+
+        class AdminPage {
+            constructor() {
+                this.dom = {
+                    teamsList: document.getElementById('teamsList'),
+                    teamCount: document.getElementById('teamCount'),
+                    startGameBtn: document.getElementById('startGameBtn'),
+                    resetLobbyBtn: document.getElementById('resetLobbyBtn'),
+                    statusText: document.getElementById('statusText'),
+                    statusDot: document.getElementById('statusDot'),
+                    leaderboardBody: document.getElementById('leaderboardBody')
+                };
+
+                this.setupEventListeners();
+                this.initializeFirebaseListeners();
+                this.startPolling();
+            }
+
+            setupEventListeners() {
+                this.dom.startGameBtn.addEventListener('click', () => this.handleStartGame());
+                this.dom.resetLobbyBtn.addEventListener('click', () => this.handleResetLobby());
+
+                // Register lobby listeners
+                lobbyManager.registerListener('TeamsUpdate', (teams) => this.updateTeamsList(teams));
+            }
+
+            /**
+             * Initialize Firebase listeners for real-time updates
+             */
+            initializeFirebaseListeners() {
+                // Wait for Firebase to be ready
+                const checkFirebase = setInterval(() => {
+                    if (typeof window.firebaseDB !== 'undefined') {
+                        clearInterval(checkFirebase);
+
+                        // Listen to teams updates
+                        window.firebaseDB.onTeamsUpdate((teams) => {
+                            this.updateTeamsList(teams);
+                        });
+
+                        // Listen to leaderboard updates
+                        window.firebaseDB.onLeaderboardUpdate((leaderboard) => {
+                            this.updateLeaderboard(leaderboard);
+                        });
+
+                        console.log('✅ Firebase listeners initialized in Admin');
+                    }
+                }, 100);
+            }
+
+            /**
+             * Start polling for lobby updates (for browsers without real-time support)
+             */
+            startPolling() {
+                // Initial update
+                (async () => {
+                    const teams = await lobbyManager.getTeamsList();
+                    this.updateTeamsList(teams);
+                })();
+
+                // Poll every 500ms for changes
+                setInterval(() => {
+                    (async () => {
+                        const teams = await lobbyManager.getTeamsList();
+                        this.updateTeamsList(teams);
+                    })();
+                }, 500);
+            }
+
+            /**
+             * Update teams list display
+             */
+            updateTeamsList(teams) {
+                const teamCount = teams && teams.length ? teams.length : 0;
+                this.dom.teamCount.textContent = `${teamCount} / 200`;
+
+                if (teamCount === 0) {
+                    this.dom.teamsList.innerHTML = '<div class="empty-state">No teams joined yet</div>';
+                    this.dom.startGameBtn.disabled = true;
+                    this.updateStatus('Waiting for teams...', false);
+                } else {
+                    const teamsList = teams && Array.isArray(teams) ? teams : [];
+                    this.dom.teamsList.innerHTML = teamsList.map((team, index) => `
+                        <div class="team-item">
+                            <span class="team-name">${index + 1}. ${team.name || team}</span>
+                            <span class="team-status">Ready</span>
+                        </div>
+                    `).join('');
+                    this.dom.startGameBtn.disabled = false;
+                    this.updateStatus(`${teamCount} team(s) ready to play`, true);
+                }
+            }
+
+            /**
+             * Update leaderboard display
+             */
+            updateLeaderboard(leaderboard) {
+                if (!leaderboard || leaderboard.length === 0) {
+                    this.dom.leaderboardBody.innerHTML = `
+                        <tr>
+                            <td colspan="4" class="leaderboard-empty">No scores yet. Game in progress...</td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                this.dom.leaderboardBody.innerHTML = leaderboard.map((entry, index) => {
+                    const rank = index + 1;
+                    let rankClass = 'leaderboard-rank';
+                    if (rank === 1) rankClass += ' first';
+                    else if (rank === 2) rankClass += ' second';
+                    else if (rank === 3) rankClass += ' third';
+
+                    const minutes = Math.floor(entry.time / 60);
+                    const seconds = entry.time % 60;
+                    const timeStr = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+                    return `
+                        <tr>
+                            <td class="${rankClass}">#${rank}</td>
+                            <td class="leaderboard-team-name">${entry.teamName}</td>
+                            <td class="leaderboard-score">${(entry.score || 0).toLocaleString()}</td>
+                            <td class="leaderboard-time">${timeStr}</td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            /**
+             * Handle start game
+             */
+            async handleStartGame() {
+                const teams = await lobbyManager.getTeamsList();
+                const teamCount = teams && teams.length ? teams.length : 0;
+                
+                if (teamCount === 0) {
+                    alert('No teams to start the game!');
+                    return;
+                }
+
+                if (confirm(`Start game for ${teamCount} team(s)?`)) {
+                    await lobbyManager.startGame();
+                    this.dom.statusText.textContent = '🎮 Game has started!';
+                    this.dom.startGameBtn.disabled = true;
+                    this.dom.statusDot.style.background = 'var(--neon-green)';
+                    
+                    // Show success message
+                    alert(`✅ Game started! All ${teamCount} team(s) will begin Round 1.`);
+                    
+                    console.log('🎮 Game started successfully');
+                }
+            }
+
+            /**
+             * Handle lobby reset
+             */
+            async handleResetLobby() {
+                if (confirm('Are you sure you want to reset the lobby? This cannot be undone.')) {
+                    await lobbyManager.resetLobby();
+                    this.updateTeamsList([]);
+                    this.updateLeaderboard([]);
+                    alert('✅ Lobby has been reset');
+                    console.log('🔄 Lobby reset by admin');
+                }
+            }
+
+            /**
+             * Update status indicator
+             */
+            updateStatus(text, active) {
+                this.dom.statusText.textContent = text;
+                if (active) {
+                    this.dom.statusDot.style.animation = 'pulse 1.5s infinite';
+                } else {
+                    this.dom.statusDot.style.animation = 'none';
+                    this.dom.statusDot.style.opacity = '0.5';
+                }
+            }
+        }
+
+        // Initialize admin page
+        document.addEventListener('DOMContentLoaded', () => {
+            window.adminPage = new AdminPage();
+            console.log('🎛️ Admin Panel Ready');
+        });
+    </script>
+</body>
+</html>
